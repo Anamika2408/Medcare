@@ -13,7 +13,7 @@ const doctors = [
         specialty: "Dentist",
         experience: "9 Years",
         rating: 4,
-        image: "https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg",
+        image: "https://img.freepik.com/free-photo/smiling-doctor-with-strethoscope-isolated-grey_651396-974.jpg?t=st=1742984814~exp=1742988414~hmac=a9caf2163a09cd8fccbcc598a52d1e1063de8a22d1f644ab5bbd05bf53a3dfd4&w=1380",
     },
     {
         id: 2,

@@ -15,7 +15,6 @@ export default function Hero() {
                     Get Started
                 </Link>
             </div>
-
             <div className={styles.heroSection}></div>
         </section>
     );

@@ -6,7 +6,7 @@ import styles from "./Login.module.css";
 import Image from "next/image";
 import { useLogin } from "@/providers/loginProvider";
 import { useRouter } from "next/navigation";
-//import GoogleSignInButton from "../GoogleSignInButton/GoogleSignInButton";
+import GoogleSignInButton from "../GoogleSignInButton/GoogleSignInButton";
 
 export default function LoginForm() {
     const [email, setEmail] = useState("");
@@ -135,7 +135,7 @@ export default function LoginForm() {
                     <span>or</span>
                 </div>
 
-                {/* <GoogleSignInButton onClick={handleGoogleSignIn} /> */}
+                <GoogleSignInButton onClick={handleGoogleSignIn} />
             </form>
         </div>
     );

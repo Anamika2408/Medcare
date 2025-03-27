@@ -6,7 +6,7 @@ import styles from "./signup.module.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLogin } from "@/providers/loginProvider";
-//import GoogleSignInButton from "../GoogleSignInButton/GoogleSignInButton";
+import GoogleSignInButton from "../GoogleSignInButton/GoogleSignInButton";
 
 export default function SignUpForm() {
     const [name, setName] = useState("");
@@ -186,10 +186,10 @@ export default function SignUpForm() {
                     <span>or</span>
                 </div>
 
-                {/* <GoogleSignInButton
+                <GoogleSignInButton
                     onClick={handleGoogleSignIn}
                     text="Sign up with Google"
-                /> */}
+                />
             </form>
         </div>
     );

@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
             {
                 hostname: "www.shutterstock.com",
             },
+            {
+                hostname: "img.freepik.com",
+            },
+            {
+                hostname: "img.unsplash.com",
+            },
         ],
     },
     async rewrites() {

@@ -1,6 +1,6 @@
 const express = require("express");
 const passportLocalStrategy = require("../config/passport-local-strategy.js");
-// const passportGoogleStrategy = require("../config/passport-google-oauth.js");
+const passportGoogleStrategy = require("../config/passport-google-oauth.js");
 const bcrypt = require("bcrypt");
 const db = require("../config/db.js");
 
@@ -86,12 +86,12 @@ router.post("/logout", (req, res) => {
     });
 });
 
-// // Route to initiate Google OAuth flow
-// router.get("/google", passportGoogleStrategy.authenticate("google", { scope: ["profile", "email"] }));
+// Route to initiate Google OAuth flow
+router.get("/google", passportGoogleStrategy.authenticate("google", { scope: ["profile", "email"] }));
 
-// // Google OAuth callback route
-// router.get("/google/callback", passportGoogleStrategy.authenticate("google", { failureRedirect: "http://localhost:3000/login" }), (req, res) => {
-//     res.redirect("http://localhost:3000/auth/google/callback");
-// });
+// Google OAuth callback route
+router.get("/google/callback", passportGoogleStrategy.authenticate("google", { failureRedirect: "http://localhost:3000/login" }), (req, res) => {
+    res.redirect("http://localhost:3000/auth/google/callback");
+});
 
 module.exports = router;
