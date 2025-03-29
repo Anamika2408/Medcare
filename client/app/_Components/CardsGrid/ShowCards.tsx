@@ -1,134 +1,229 @@
 "use client";
-
-import { ChangeEvent, useState } from "react";
+import {useRouter} from 'next/navigation';
+import { ChangeEvent, useState, useEffect } from "react";
 import CardComp from "../Card/Card";
 import Search from "../SearchBar/Search";
 import styles from "./CardsGrid.module.css";
 
-const doctors = [
-    {
-        id: 1,
-        name: "Dr. Jane Doe",
-        degree: "MBBS",
-        specialty: "Dentist",
-        experience: "9 Years",
-        rating: 4,
-        image: "https://img.freepik.com/free-photo/smiling-doctor-with-strethoscope-isolated-grey_651396-974.jpg?t=st=1742984814~exp=1742988414~hmac=a9caf2163a09cd8fccbcc598a52d1e1063de8a22d1f644ab5bbd05bf53a3dfd4&w=1380",
-    },
-    {
-        id: 2,
-        name: "Dr. Sam Wilson",
-        degree: "BDS",
-        specialty: "Dentist",
-        experience: "5 Years",
-        rating: 5,
-        image: "https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg",
-    },
-    {
-        id: 3,
-        name: "Dr. Pepper Potts",
-        degree: "BHMS",
-        specialty: "Dentist",
-        experience: "5 Years",
-        rating: 4,
-        image: "https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg",
-    },
-    {
-        id: 4,
-        name: "Dr. Bruce Banner",
-        degree: "MD",
-        specialty: "Neurologist",
-        experience: "15 Years",
-        rating: 5,
-        image: "https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg",
-    },
-    {
-        id: 5,
-        name: "Dr. Tony Stark",
-        degree: "MBBS",
-        specialty: "Cardiologist",
-        experience: "20 Years",
-        rating: 5,
-        image: "https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg",
-    },
-    {
-        id: 6,
-        name: "Dr. Natasha Romanoff",
-        degree: "MD",
-        specialty: "Pediatrician",
-        experience: "10 Years",
-        rating: 4,
-        image: "https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg",
-    },
-    {
-        id: 7,
-        name: "Dr. Steve Rogers",
-        degree: "MBBS",
-        specialty: "Orthopedic Surgeon",
-        experience: "12 Years",
-        rating: 5,
-        image: "https://via.placeholder.com/150",
-    },
-    {
-        id: 8,
-        name: "Dr. Wanda Maximoff",
-        degree: "MD",
-        specialty: "Psychiatrist",
-        experience: "8 Years",
-        rating: 4,
-        image: "https://via.placeholder.com/150",
-    },
-    {
-        id: 9,
-        name: "Dr. Stephen Strange",
-        degree: "MBBS",
-        specialty: "Neurosurgeon",
-        experience: "18 Years",
-        rating: 5,
-        image: "https://via.placeholder.com/150",
-    },
-    {
-        id: 10,
-        name: "Dr. Carol Danvers",
-        degree: "BAMS",
-        specialty: "General Physician",
-        experience: "7 Years",
-        rating: 4,
-        image: "https://via.placeholder.com/150",
-    },
-    {
-        id: 11,
-        name: "Dr. Scott Lang",
-        degree: "BHMS",
-        specialty: "Dermatologist",
-        experience: "6 Years",
-        rating: 4,
-        image: "https://via.placeholder.com/150",
-    },
-    {
-        id: 12,
-        name: "Dr. Peter Parker",
-        degree: "MBBS",
-        specialty: "ENT Specialist",
-        experience: "5 Years",
-        rating: 5,
-        image: "https://via.placeholder.com/150",
-    },
-];
+export interface Doctor {
+    id: number;
+    name: string;
+    specialty: string;
+    experience: string;
+    rating: number;
+    profile_pic: string;
+}
+
+interface DoctorsResponse {
+    ok: boolean;
+    data: {
+        rows: Doctor[];
+        total: number;
+    };
+    message?: string;
+}
 
 export default function ShowCards() {
     const [filters, setFilters] = useState({
         rating: "any",
-        experience: "15+",
+        experience: "any",
         gender: "any",
     });
 
-    const resetFilters = () => {
+    // Map experience string values to integer values for the backend
+    const experienceToIntMap: Record<string, number> = {
+        "15+": 15,
+        "10-15": 10,
+        "5-10": 5,
+        "3-5": 3,
+        "1-3": 1,
+        "0-1": 0,
+    };
+
+    const [doctors, setDoctors] = useState<Doctor[]>([]);
+    const [totalDoctors, setTotalDoctors] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isResetting, setIsResetting] = useState(false);
+    const [filtersApplied, setFiltersApplied] = useState(false);
+    const [searchApplied, setSearchApplied] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
+    const itemsPerPage = 6;
+
+    useEffect(() => {
+        if (!isResetting) {
+            if (searchApplied) {
+                handleSearch(searchQuery);
+            } else if (filtersApplied) {
+                handleFilters();
+            } else {
+                fetchDoctors();
+            }
+        }
+    }, [currentPage, isResetting, filtersApplied, searchApplied, searchQuery]);
+
+    const handleFilters = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Build query params based on selected filters
+            const queryParams = new URLSearchParams();
+
+            // Only add rating filter if not "any"
+            if (filters.rating !== "any") {
+                queryParams.append("rating", filters.rating);
+            }
+
+            // Get the integer value for experience
+            if (filters.experience !== "any") {
+                const expValue = experienceToIntMap[filters.experience];
+                queryParams.append("experience", expValue.toString());
+            }
+
+            // Only add gender filter if not "any"
+            if (filters.gender !== "any") {
+                queryParams.append("gender", filters.gender);
+            }
+
+            // Only make the API call if there are query parameters
+            if (queryParams.toString()) {
+                setFiltersApplied(true);
+                const response = await fetch(
+                    `http://localhost:3001/api/doctors/filter?${queryParams.toString()}`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ pageNum: currentPage }),
+                    }
+                );
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(
+                        errorData.message ||
+                            `HTTP error! status: ${response.status}`
+                    );
+                }
+
+                const data: DoctorsResponse = await response.json();
+
+                if (!data.ok) {
+                    throw new Error(
+                        data.message || "Failed to fetch filtered doctors"
+                    );
+                }
+
+                if (!data.data?.rows) {
+                    throw new Error("Invalid data format received from server");
+                }
+
+                setDoctors(data.data.rows);
+                setTotalDoctors(data.data.total || 0);
+            } else {
+                // If no filters are applied, fetch all doctors
+                await fetchDoctors();
+            }
+
+            // Don't reset to first page when filters are already applied and user is navigating pages
+        } catch (err) {
+            console.error("Error fetching filtered doctors:", err);
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while filtering doctors"
+            );
+            setDoctors([]);
+            setTotalDoctors(0);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDoctors = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Ensure currentPage is a valid number
+            const pageNum = Math.max(1, currentPage);
+
+            const response = await fetch("http://localhost:3001/api/doctors", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ pageNum }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(
+                    errorData.message ||
+                        `HTTP error! status: ${response.status}`
+                );
+            }
+
+            const data: DoctorsResponse = await response.json();
+
+            if (!data.ok) {
+                throw new Error(data.message || "Failed to fetch doctors");
+            }
+
+            if (!data.data?.rows) {
+                throw new Error("Invalid data format received from server");
+            }
+
+            setDoctors(data.data.rows);
+            setTotalDoctors(data.data.total || 0);
+        } catch (err) {
+            console.error("Error fetching doctors:", err);
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while fetching doctors"
+            );
+            setDoctors([]);
+            setTotalDoctors(0);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const resetFilters = async () => {
+        if (!filtersApplied) return;
+
+        setIsResetting(true);
         setFilters({
             rating: "any",
-            experience: "15+",
+            experience: "any",
             gender: "any",
         });
+        setCurrentPage(1);
+        setFiltersApplied(false);
+        setSearchApplied(false);
+        setSearchQuery("");
+
+        // Fetch all doctors after resetting filters
+        try {
+            setLoading(true);
+            setError(null);
+            await fetchDoctors();
+        } catch (err) {
+            console.error("Error fetching doctors after reset:", err);
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while fetching doctors"
+            );
+        } finally {
+            setLoading(false);
+            setIsResetting(false);
+        }
     };
 
     const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -137,15 +232,95 @@ export default function ShowCards() {
             ...prevFilters,
             [name]: value,
         }));
+        setCurrentPage(1);
     };
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const handleSearch = async (searchVal: string) => {
+        if (!searchVal) return;
+
+        try {
+            setLoading(true);
+            setError(null);
+            setSearchQuery(searchVal);
+
+            const queryParams = new URLSearchParams();
+            queryParams.append("q", searchVal);
+            queryParams.append("page", currentPage.toString());
+
+            // Clear any active filters when searching
+            setFiltersApplied(false);
+            setSearchApplied(true);
+
+            const response = await fetch(
+                `http://localhost:3001/api/doctors/search?${queryParams.toString()}`
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(
+                    errorData.message ||
+                        `HTTP error! status: ${response.status}`
+                );
+            }
+
+            const data: DoctorsResponse = await response.json();
+
+            if (!data.ok) {
+                throw new Error(data.message || "Failed to search doctors");
+            }
+
+            if (!data.data?.rows) {
+                throw new Error("Invalid data format received from server");
+            }
+
+            setDoctors(data.data.rows);
+            setTotalDoctors(data.data.total || 0);
+            setCurrentPage(1); // Reset to first page for new search results
+        } catch (err) {
+            console.error("Error searching doctors:", err);
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "An error occurred while searching doctors"
+            );
+            setDoctors([]);
+            setTotalDoctors(0);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className={styles.loadingContainer}>
+                <p>Loading doctors...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.errorContainer}>
+                <p>Error: {error}</p>
+                <button onClick={fetchDoctors} className={styles.retryButton}>
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
+    const totalPages = Math.max(1, Math.ceil(totalDoctors / itemsPerPage));
 
     return (
         <div className={styles.pageContainer}>
-            <Search />
+            <Search handleSearch={handleSearch} />
             <div className={styles.infoText}>
                 <p className={styles.docCount}>
-                    {" "}
-                    {doctors.length} doctors available
+                    {totalDoctors} doctors available
                 </p>
                 <p className={styles.subText}>
                     Book appointments with minimum wait-time & verified doctor
@@ -239,6 +414,16 @@ export default function ShowCards() {
                     <div className={styles.filterSection}>
                         <h4 className={styles.filterTitle}>Experience</h4>
                         <div className={styles.filterOptions}>
+                            <label className={styles.filterOption}>
+                                <input
+                                    type="radio"
+                                    name="experience"
+                                    value="any"
+                                    checked={filters.experience === "any"}
+                                    onChange={handleFilterChange}
+                                />
+                                <span>Any</span>
+                            </label>
                             <label className={styles.filterOption}>
                                 <input
                                     type="radio"
@@ -337,13 +522,81 @@ export default function ShowCards() {
                             </label>
                         </div>
                     </div>
-                    <button className={styles.applyBtn}>Apply Filters</button>
+                    <button
+                        onClick={() => {
+                            if (!filtersApplied) {
+                                setCurrentPage(1);
+                            }
+                            handleFilters();
+                        }}
+                        className={styles.applyBtn}
+                    >
+                        Apply Filters
+                    </button>
                 </div>
 
                 <div className={styles.gridContainer}>
-                    {doctors.map((doctor) => (
-                        <CardComp key={doctor.id} doctor={doctor} />
-                    ))}
+                    {/* Cards Grid */}
+                    <div className={styles.cardsGrid}>
+                        {doctors.map((doctor) => (
+                             <CardComp
+                             key={doctor.id}
+                             experience={doctor.experience}
+                             id={doctor.id}
+                             name={doctor.name}
+                             profile_pic={doctor.profile_pic}
+                             rating={doctor.rating}
+                             specialty={doctor.specialty}
+                             handleCardClick={() =>
+                                 router.push(
+                                     `/appointments/doctor/${doctor.id}`
+                                 )
+                             }
+                         />
+                        ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className={styles.pagination}>
+                            <button
+                                onClick={() =>
+                                    handlePageChange(currentPage - 1)
+                                }
+                                disabled={currentPage === 1}
+                                className={styles.paginationButton}
+                            >
+                                Previous
+                            </button>
+
+                            {Array.from(
+                                { length: totalPages },
+                                (_, i) => i + 1
+                            ).map((pageNum) => (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => handlePageChange(pageNum)}
+                                    className={`${styles.paginationButton} ${
+                                        currentPage === pageNum
+                                            ? styles.activePage
+                                            : ""
+                                    }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() =>
+                                    handlePageChange(currentPage + 1)
+                                }
+                                disabled={currentPage === totalPages}
+                                className={styles.paginationButton}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
