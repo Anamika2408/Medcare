@@ -11,7 +11,6 @@ export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { user, logout, fetchUser } = useLogin();
 
-    // Force re-fetch user data when the component mounts
     useEffect(() => {
         console.log("Navbar mounted, current user:", user);
         fetchUser();
@@ -43,19 +42,7 @@ export default function Navbar() {
                         <Link href="/">Reviews</Link>
                     </li>
                     <li>
-                        <Link
-                            style={{
-                                color: "red",
-                                display: "flex",
-                                gap: "5px",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                            href="/help"
-                        >
-                            <FaAmbulance />
-                            Help
-                        </Link>
+                        <Link href="/help"> Help</Link>
                     </li>
                 </ul>
             </div>
@@ -80,7 +67,7 @@ export default function Navbar() {
                 </div>
             )}
 
-            {/* Hamburger Icon */}
+            
             <div className={styles.hamburger} onClick={() => setMenuOpen(true)}>
                 <div></div>
                 <div></div>
@@ -135,21 +122,9 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                style={{
-                                    color: "red",
-                                    display: "flex",
-                                    gap: "5px",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                                href="/help"
-                                onClick={() => setMenuOpen(false)}
-                            >
-                                <FaAmbulance />
-                                Help
-                            </Link>
+                        <Link href="/help"> Help</Link>
                         </li>
+        
                     </ul>
                     <div className={styles.btncon}>
                         {user ? (
