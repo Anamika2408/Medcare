@@ -53,6 +53,7 @@
 
 .loginButton {
     background-color: #0b4b2f;
+    cursor: pointer;
     color: white;
 }
 

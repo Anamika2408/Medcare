@@ -1,5 +1,5 @@
 "use client";
-import {useRouter} from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useState, useEffect } from "react";
 import CardComp from "../Card/Card";
 import Search from "../SearchBar/Search";
@@ -195,7 +195,7 @@ export default function ShowCards() {
     };
 
     const resetFilters = async () => {
-        if (!filtersApplied) return;
+        if (!filtersApplied && !searchQuery) return;
 
         setIsResetting(true);
         setFilters({
@@ -504,8 +504,8 @@ export default function ShowCards() {
                                 <input
                                     type="radio"
                                     name="gender"
-                                    value="male"
-                                    checked={filters.gender === "male"}
+                                    value="Male"
+                                    checked={filters.gender === "Male"}
                                     onChange={handleFilterChange}
                                 />
                                 <span>Male</span>
@@ -514,8 +514,8 @@ export default function ShowCards() {
                                 <input
                                     type="radio"
                                     name="gender"
-                                    value="female"
-                                    checked={filters.gender === "female"}
+                                    value="Female"
+                                    checked={filters.gender === "Female"}
                                     onChange={handleFilterChange}
                                 />
                                 <span>Female</span>
@@ -539,20 +539,20 @@ export default function ShowCards() {
                     {/* Cards Grid */}
                     <div className={styles.cardsGrid}>
                         {doctors.map((doctor) => (
-                             <CardComp
-                             key={doctor.id}
-                             experience={doctor.experience}
-                             id={doctor.id}
-                             name={doctor.name}
-                             profile_pic={doctor.profile_pic}
-                             rating={doctor.rating}
-                             specialty={doctor.specialty}
-                             handleCardClick={() =>
-                                 router.push(
-                                     `/appointments/doctor/${doctor.id}`
-                                 )
-                             }
-                         />
+                            <CardComp
+                                key={doctor.id}
+                                experience={doctor.experience}
+                                id={doctor.id}
+                                name={doctor.name}
+                                profile_pic={doctor.profile_pic}
+                                rating={doctor.rating}
+                                specialty={doctor.specialty}
+                                handleCardClick={() =>
+                                    router.push(
+                                        `/appointments/doctor/${doctor.id}`
+                                    )
+                                }
+                            />
                         ))}
                     </div>
 

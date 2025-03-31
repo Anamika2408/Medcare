@@ -6,30 +6,10 @@ export default function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    async function handleLogin(e:any){
-         e.preventDefault();
 
-         const response = await fetch("http://localhost:3001/api/users", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }),
-        
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            alert("Login successful!");
-        } else {
-            alert(`Login failed: ${data.message}`);
-        }
-
-    }
     return (
         <div className={styles.loginContainer}>
             <h2>Admin Login</h2>
-            
             <br/>
             <label>Email</label>
             <div className={styles.inputField}>
@@ -41,9 +21,6 @@ export default function LoginForm() {
                             onChange={(e) => setEmail(e.target.value)}  />
                 </section>
             </div>
-            
-            
-
             <label>Password</label>
             <div className={styles.inputField}>
                 <section className={styles.inputcontainer}>
@@ -55,11 +32,9 @@ export default function LoginForm() {
                 </section>
             </div>
 
-            <button className={`${styles.button} ${styles.loginButton}`} onClick={handleLogin}>Login</button>
-   
+            <button className={`${styles.button} ${styles.loginButton}` } >Login</button>
             <br/>
             <br/>
-            
         </div>
     );
 }

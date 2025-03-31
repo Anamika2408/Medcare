@@ -6,18 +6,6 @@ import Link from "next/link";
 
 const blogs = [
     {
-        title: "10 Tips for a Healthy Lifestyle",
-        description:
-            "Simple steps to improve your overall well-being and stay fit.",
-        link: "https://www.healthline.com/nutrition/10-healthy-lifestyle-tips",
-    },
-    {
-        title: "The Importance of Mental Health",
-        description:
-            "Why taking care of your mind is just as important as your body.",
-        link: "https://www.verywellmind.com/importance-of-mental-health-5092459",
-    },
-    {
         title: "Best Superfoods for Immunity Boost",
         description:
             "A guide to the top foods that help strengthen your immune system.",
@@ -29,6 +17,19 @@ const blogs = [
             "Workout plans tailored for different age groups and fitness levels.",
         link: "https://www.self.com/story/best-workouts-for-every-age",
     },
+    {
+        title: "Tips for a Healthy Lifestyle",
+        description:
+            "Simple steps to improve your overall well-being and stay fit.",
+        link: "https://www.healthline.com/nutrition/10-healthy-lifestyle-tips",
+    },
+    {
+        title: "The Importance of Mental Health",
+        description:
+            "Why taking care of your mind is just as important as your body.",
+        link: "https://www.verywellmind.com/importance-of-mental-health-5092459",
+    },
+    
 ];
 
 const HealthBlog = () => {

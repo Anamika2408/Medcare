@@ -1,18 +1,14 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import styles from "./Navbar.module.css";
 import Image from "next/image";
-import { useLogin } from "@/providers/loginProvider";
+import { useLogin } from "@/app/providers/loginProvider";
 import { FaAmbulance } from "react-icons/fa";
-
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const { user, logout, fetchUser } = useLogin();
-
     useEffect(() => {
-        console.log("Navbar mounted, current user:", user);
         fetchUser();
     }, []);
 
@@ -42,8 +38,8 @@ export default function Navbar() {
                         <Link href="/">Reviews</Link>
                     </li>
                     <li>
-                        <Link href="/help"> Help</Link>
-                    </li>
+                         <Link href="/help">Help</Link>
+                     </li>
                 </ul>
             </div>
 
@@ -109,10 +105,7 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                href="/healthblog"
-                                onClick={() => setMenuOpen(false)}
-                            >
+                            <Link href="/healthblog" onClick={() => setMenuOpen(false)}>
                                 Health Blog
                             </Link>
                         </li>
@@ -122,9 +115,8 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li>
-                        <Link href="/help"> Help</Link>
+                            <Link href="/help">Help </Link>
                         </li>
-        
                     </ul>
                     <div className={styles.btncon}>
                         {user ? (
