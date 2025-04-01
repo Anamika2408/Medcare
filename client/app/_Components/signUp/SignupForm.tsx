@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import {useEffect} from "react";
 import Link from "next/link";
 import styles from "./signup.module.css";
 import Image from "next/image";
@@ -16,7 +17,12 @@ export default function RegisterForm() {
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
-    const { fetchUser, setUser } = useLogin();
+    const { fetchUser, setUser, user } = useLogin();
+     useEffect(()=>{
+            if(user){
+                router.replace("/");
+            }
+        },[]);
 
     const processSignup = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -51,7 +57,7 @@ export default function RegisterForm() {
                     const loginData = await loginRes.json();
 
                     if (loginData.ok) {
-                        setUser(loginData.user);
+                       // setUser(loginData.user);
                         await fetchUser();
                         toast.success("Signup and login successful!");
                         router.replace("/");

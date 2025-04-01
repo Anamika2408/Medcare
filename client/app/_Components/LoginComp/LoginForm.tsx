@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "./Login.module.css";
 import Image from "next/image";
@@ -14,7 +14,12 @@ export default function LoginForm() {
     const [userPassword, setUserPassword] = useState("");
     const router = useRouter();
 
-    const { fetchUser } = useLogin();
+    const { fetchUser,user } = useLogin();
+    useEffect(()=>{
+        if(user){
+            router.replace("/");
+        }
+    },[]);
 
     const processLogin = async (event?: React.FormEvent) => {
         if (event) event.preventDefault();
